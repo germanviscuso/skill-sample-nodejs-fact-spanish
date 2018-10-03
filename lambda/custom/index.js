@@ -10,11 +10,9 @@ const Alexa = require('ask-sdk');
 const SKILL_NAME = 'Datos del espacio';
 const WELCOME_MESSAGE = '¡Bienvenido!';
 const GET_FACT_MESSAGE = 'Aquí está tu dato. ';
-const HELP_MESSAGE = 'Puedes pedirme un dato del espacio, o, puedes decir salir... ¿Como te puedo ayudar?';
+const HELP_MESSAGE = 'Puedes pedirme un dato del espacio, o, puedes decir para... ¿Como te puedo ayudar?';
 const HELP_REPROMPT = '¿Cómo te puedo ayudar?';
 const STOP_MESSAGE = 'Hasta pronto';
-const FALLBACK_MESSAGE = 'La skill Datos del Espacio no te puede ayudar con eso pero si a descubrir datos interesantes sobre el espacio si dices dime un dato del espacio. ¿Como te puedo ayudar?';
-const FALLBACK_REPROMPT = '¿Como te puedo ayudar?';
 
 //=========================================================================================================================================
 //TODO: Replace this data with your own.  You can find translations of this data at http://github.com/alexa/skill-sample-node-js-fact/lambda/data
@@ -64,7 +62,7 @@ const LaunchHandler = {
       .speak(speechOutput)
       .reprompt(speechOutput)
       //.withShouldEndSession(false)
-      .withSimpleCard(SKILL_NAME, randomFact)
+      .withSimpleCard(SKILL_NAME, WELCOME_MESSAGE)
       .getResponse();
   },
 };
@@ -81,6 +79,7 @@ const ObtenerNuevoDatoHandler = {
 
     return handlerInput.responseBuilder
       .speak(speechOutput)
+      .reprompt(HELP_REPROMPT)
       .withSimpleCard(SKILL_NAME, randomFact)
       .getResponse();
   },
@@ -96,25 +95,6 @@ const HelpHandler = {
     return handlerInput.responseBuilder
       .speak(HELP_MESSAGE)
       .reprompt(HELP_REPROMPT)
-      .getResponse();
-  },
-};
-
-
-
-const FallbackHandler = {
-  // 2018-May-01: AMAZON.FallbackIntent is only currently available in en-US locale.
-  //              This handler will not be triggered except in that locale, so it can be
-  //              safely deployed for any locale.
-  canHandle(handlerInput) {
-    const request = handlerInput.requestEnvelope.request;
-    return request.type === 'IntentRequest'
-      && request.intent.name === 'AMAZON.FallbackIntent';
-  },
-  handle(handlerInput) {
-    return handlerInput.responseBuilder
-      .speak(FALLBACK_MESSAGE)
-      .reprompt(FALLBACK_REPROMPT)
       .getResponse();
   },
 };
@@ -163,10 +143,10 @@ const skillBuilder = Alexa.SkillBuilders.custom();
 
 exports.handler = skillBuilder
   .addRequestHandlers(
-    GetNewFactHandler,
+    LaunchHandler,
+    ObtenerNuevoDatoHandler,
     HelpHandler,
     ExitHandler,
-    FallbackHandler,
     SessionEndedRequestHandler
   )
   .addErrorHandlers(ErrorHandler)
